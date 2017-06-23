@@ -1,0 +1,39 @@
+#include"GetRequest.h"
+#include"../response/Response.h"
+
+void GetRequest::doExecute(){
+    std::string filename,cgiargs;
+    bool isstatic =parseUri(filename,cgiargs);
+    Response(getFileDescriptor(),filename,cgiargs,isstatic).respond();
+}
+bool GetRequest::parseUri(std::string& filename,std::string& cgiargs){
+    if(getUri().find("cgi-bin")==std::string::npos)
+        return  parseStaticContentUri(filename);
+    else
+        return parseDynamicContentUri(filename,cgiargs);
+}
+bool GetRequest::parseStaticContentUri(std::string& filename){
+    std::string uri=getUri();
+    filename="test-files"+uri;
+    if(uri[uri.length()-1]=='/')
+        filename+="index.html";
+    return true;
+}
+
+bool GetRequest::parseDynamicContentUri(std::string& filename,std::string &cgiargs){
+    assignCgiArgs(cgiargs);
+    filename="."+getUri();
+}
+
+void GetRequest::assignCgiArgs(std::string& cgiargs){
+    std::string uri=getUri();
+    std::string::size_type pos=uri.find_first_of("?");
+    doAssignCigArgs(pos,cgiargs);
+}
+void GetRequest:;doAssignCigArgs(std::string::size_type pos,std::string& cgiargs){
+    if(pos!=std::string::npos){
+        cgiargs=getUri().substr(pos,getUri().length()-1);
+    }
+    else 
+        cgiargs.clear();
+}
